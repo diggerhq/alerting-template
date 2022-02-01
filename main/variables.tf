@@ -8,3 +8,7 @@ variable "region" {}
 variable "aws_key" {}
 
 variable "aws_secret" {}
+
+variable "environment" {}
+
+variable "project" {}
