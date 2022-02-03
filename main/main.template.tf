@@ -15,8 +15,7 @@ provider "aws" {
 
 locals {
   tags = {
-    created_by : "terraform",
-    environment : var.environment
+    created_by : "terraform"
   }
 
   lambda_function_name = "slack-notify-lambda"
