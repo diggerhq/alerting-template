@@ -116,6 +116,7 @@ module "lambda" {
     }
   }
   tags = local.tags
+  depends_on = [aws_cloudwatch_log_group.lambda_log_group]
 }
 
 resource "aws_sns_topic_subscription" "sns-topic" {
