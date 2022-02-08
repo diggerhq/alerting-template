@@ -15,8 +15,10 @@ provider "aws" {
 
 locals {
   tags = {
-    created_by : "terraform"
+    created_by : "digger"
   }
+
+  slack_notification_webhook_ssm_name = "/utils/slack/webhook_url"
 
   lambda_function_name = "slack-notify-lambda"
   lambda_handler       = "lambda-function.lambda_handler"
@@ -60,7 +62,7 @@ resource "aws_sns_topic" "cloudwatch_alarms_topic" {
 }
 
 resource "aws_ssm_parameter" "slack_webhook_url_ssm" {
-  name        = "/utils/slack/webhook_url"
+  name        = local.slack_notification_webhook_ssm_name
   description = "Slack webhook URL"
   type        = "SecureString"
   value       = "test"
@@ -132,4 +134,8 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
 
 output "sns_topic_arn" {
   value = aws_sns_topic.cloudwatch_alarms_topic.arn
+}
+
+output "slack_notification_webhook_ssm_name" {
+  value = local.slack_notification_webhook_ssm_name
 }
