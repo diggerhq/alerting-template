@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
+  region     = var.region
   access_key = var.aws_key
   secret_key = var.aws_secret
 }
@@ -18,12 +18,14 @@ locals {
     created_by : "digger"
   }
 
-  slack_notification_webhook_ssm_name = "/utils/slack/webhook_url"
+  lambda_function_name                = "${var.project}-${var.environment}-slack-notify-lambda"
+  slack_notification_webhook_ssm_name = "/utils/slack/${var.project}/${var.environment}/webhook_url"
+  sns_topic_name                      = "${var.project}_${var.environment}_cloudwatch_alarms"
+  cloudwatch_log_group_name           = "/aws/lambda/${var.project}/${var.environment}/${local.lambda_function_name}"
 
-  lambda_function_name = "slack-notify-lambda"
-  lambda_handler       = "lambda-function.lambda_handler"
-  lambda_zip           = "${path.module}/lambda/lambda-function.zip"
-  lambda_src           = "${path.module}/lambda/lambda-function.py"
+  lambda_handler = "lambda-function.lambda_handler"
+  lambda_zip     = "${path.module}/lambda/lambda-function.zip"
+  lambda_src     = "${path.module}/lambda/lambda-function.py"
 
   lambda_policy_document = {
     sid       = "AllowWriteToCloudwatchLogs"
@@ -58,7 +60,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
 }
 
 resource "aws_sns_topic" "cloudwatch_alarms_topic" {
-  name = "${var.project}_cloudwatch_alarms"
+  name = local.sns_topic_name
 }
 
 resource "aws_ssm_parameter" "slack_webhook_url_ssm" {
@@ -95,19 +97,19 @@ EOF
 }
 
 module "lambda" {
-  source = "terraform-aws-modules/lambda/aws"
-  function_name = local.lambda_function_name
-  create_package = true
-  package_type   = "Zip"
-  source_path = local.lambda_src
-  runtime = "python3.8"
-  timeout = 30
-  publish = true
-  handler     = local.lambda_handler
-  lambda_role = aws_iam_role.slack_notify_lambda_role.arn
-  attach_cloudwatch_logs_policy = false
-  attach_policy_json            = true
-  policy_json                   = try(data.aws_iam_policy_document.lambda_policy_document.json, "")
+  source                            = "terraform-aws-modules/lambda/aws"
+  function_name                     = local.lambda_function_name
+  create_package                    = true
+  package_type                      = "Zip"
+  source_path                       = local.lambda_src
+  runtime                           = "python3.8"
+  timeout                           = 30
+  publish                           = true
+  handler                           = local.lambda_handler
+  lambda_role                       = aws_iam_role.slack_notify_lambda_role.arn
+  attach_cloudwatch_logs_policy     = false
+  attach_policy_json                = true
+  policy_json                       = try(data.aws_iam_policy_document.lambda_policy_document.json, "")
   use_existing_cloudwatch_log_group = true
 
   allowed_triggers = {
@@ -116,7 +118,7 @@ module "lambda" {
       source_arn = aws_sns_topic.cloudwatch_alarms_topic.arn
     }
   }
-  tags = local.tags
+  tags       = local.tags
   depends_on = [aws_cloudwatch_log_group.lambda_log_group]
 }
 
@@ -127,7 +129,7 @@ resource "aws_sns_topic_subscription" "sns-topic" {
 }
 
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
-  name              = "/aws/lambda/${local.lambda_function_name}"
+  name              = local.cloudwatch_log_group_name
   retention_in_days = 7
   tags              = local.tags
 }
