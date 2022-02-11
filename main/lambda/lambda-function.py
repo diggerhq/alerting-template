@@ -1,4 +1,5 @@
 import json
+import os
 import pprint
 import boto3
 import logging
@@ -44,7 +45,8 @@ class Alarm:
 def lambda_handler(event, context):
     alarm = Alarm(event['Records'][0]['Sns']['Message'])
 
-    webhook_url = ssm.get_parameter(Name='/utils/slack/webhook_url', WithDecryption=True)['Parameter']['Value']
+    webhook_url_name = os.environ['ssm_webhook_url']
+    webhook_url = ssm.get_parameter(Name=webhook_url_name, WithDecryption=True)['Parameter']['Value']
 
     if alarm.state_value == "ALARM":
         color = "danger"

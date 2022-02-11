@@ -112,6 +112,10 @@ module "lambda" {
   policy_json                       = try(data.aws_iam_policy_document.lambda_policy_document.json, "")
   use_existing_cloudwatch_log_group = true
 
+  environment_variables = {
+    ssm_webhook_url = aws_ssm_parameter.slack_webhook_url_ssm.value
+  }
+
   allowed_triggers = {
     AllowExecutionFromSNS = {
       principal  = "sns.amazonaws.com"
