@@ -21,7 +21,7 @@ locals {
   lambda_function_name                = "${var.project}-${var.environment}-slack-notify-lambda"
   slack_notification_webhook_ssm_name = "/utils/slack/${var.project}/${var.environment}/webhook_url"
   sns_topic_name                      = "${var.project}_${var.environment}_cloudwatch_alarms"
-  cloudwatch_log_group_name           = "/aws/lambda/${var.environment}/${local.lambda_function_name}"
+  cloudwatch_log_group_name           = "/aws/lambda/${local.lambda_function_name}"
 
   lambda_handler = "lambda-function.lambda_handler"
   lambda_zip     = "${path.module}/lambda/lambda-function.zip"
