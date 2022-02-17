@@ -77,7 +77,7 @@ resource "aws_ssm_parameter" "slack_webhook_url_ssm" {
 }
 
 resource "aws_iam_role" "slack_notify_lambda_role" {
-  name = "${var.project}_slack_notify_lambda_role"
+  name_prefix = "${var.project}_slack_notify_lambda_role"
 
   assume_role_policy = <<EOF
 {
