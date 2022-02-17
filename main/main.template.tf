@@ -31,7 +31,7 @@ locals {
     sid       = "AllowWriteToCloudwatchLogs"
     effect    = "Allow"
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = [aws_cloudwatch_log_group.lambda_log_group.arn]
+    resources = ["${aws_cloudwatch_log_group.lambda_log_group.arn}*"]
   }
 
   lambda_ssm_policy_document = {
