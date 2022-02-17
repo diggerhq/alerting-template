@@ -37,8 +37,8 @@ locals {
   lambda_ssm_policy_document = {
     sid       = "AllowToReadSSM"
     effect    = "Allow"
-    actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath", "ssm:PutParameter"]
-    resources = [aws_ssm_parameter.slack_webhook_url_ssm.arn]
+    actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath", "ssm:PutParameter", "kms:Decrypt"]
+    resources = ["${aws_ssm_parameter.slack_webhook_url_ssm.arn}*", "arn:aws:kms:${var.region}:${data.aws_caller_identity.current.account_id}:key/*"]
   }
 }
 
