@@ -113,7 +113,7 @@ module "lambda" {
   use_existing_cloudwatch_log_group = true
 
   environment_variables = {
-    ssm_webhook_url = aws_ssm_parameter.slack_webhook_url_ssm.arn
+    ssm_webhook_url = aws_ssm_parameter.slack_webhook_url_ssm.name
   }
 
   allowed_triggers = {
