@@ -38,11 +38,15 @@ locals {
     sid       = "AllowToReadSSM"
     effect    = "Allow"
     actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath", "ssm:PutParameter", "kms:Decrypt"]
-    resources = ["${aws_ssm_parameter.slack_webhook_url_ssm.arn}*", "arn:aws:kms:${var.region}:${data.aws_caller_identity.current.account_id}:key/*"]
+    resources = ["${aws_ssm_parameter.slack_webhook_url_ssm.arn}*", "${data.aws_kms_key.ssm_kms_key.arn}*"]
   }
 }
 
 data "aws_caller_identity" "current" {}
+
+data "aws_kms_key" "ssm_kms_key" {
+  key_id = "aws/ssm"
+}
 
 data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
